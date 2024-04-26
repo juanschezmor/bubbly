@@ -9,6 +9,9 @@ const ContextProvider = ({ children }) => {
   const [matchedUser, setMatchedUser] = useState(null);
   const [tags, setTags] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [removedTags, setRemovedTags] = useState(false);
   return (
     <>
       <Context.Provider
@@ -25,6 +28,12 @@ const ContextProvider = ({ children }) => {
           setMatchedUser,
           isSearching,
           setIsSearching,
+          message,
+          setMessage,
+          messages,
+          setMessages,
+          removedTags,
+          setRemovedTags,
         }}
       >
         {children}

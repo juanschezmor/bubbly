@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useGlobalContext } from "../context/Context";
 
+import { WEB_NAME } from "../constants";
+
 function Header() {
   const navigate = useNavigate();
   const navigateTo = (path) => {
@@ -25,7 +27,7 @@ function Header() {
         >
           <img className="rounded-full w-6 h-6 mr-2" src={logo} alt="logo" />
           {/* Nombre de la aplicación */}
-          <h1 className="text-lg font-semibold">NombreApp</h1>
+          <h1 className="text-lg font-semibold">{WEB_NAME}</h1>
         </a>
       </div>
       <p>User: {userId}</p>

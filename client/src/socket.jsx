@@ -13,6 +13,8 @@ const Socket = () => {
     isSearching,
     setIsSearching,
     setMatchedUser,
+    setMessages,
+    setRemovedTags,
   } = useGlobalContext();
 
   useEffect(() => {
@@ -78,8 +80,10 @@ const Socket = () => {
 
   useEffect(() => {
     socket.on("match-found", (user) => {
+      console.log("Matchfound lo esta poniendo en false");
       setIsSearching(false);
       setMatchedUser(user);
+      setRemovedTags(false);
       console.log("User matched", user);
     });
 
@@ -89,7 +93,9 @@ const Socket = () => {
   }, [setMatchedUser]);
   useEffect(() => {
     socket.on("match-not-found", () => {
+      console.log("Match not found lo esta poniendo en false");
       setIsSearching(false);
+      setRemovedTags(false);
       console.log("No user found");
     });
 
@@ -97,6 +103,17 @@ const Socket = () => {
       socket.off("match-not-found");
     };
   });
+
+  useEffect(() => {
+    socket.on("receive-message", (messageData) => {
+      console.log("Mensaje recibido:", messageData);
+      setMessages((prevMessages) => [...prevMessages, messageData]); // Agrega el nuevo mensaje al estado existente
+    });
+
+    return () => {
+      socket.off("receive-message");
+    };
+  }, [setMessages]);
 };
 
 export default Socket;

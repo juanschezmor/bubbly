@@ -11,7 +11,7 @@ socketio = SocketIO(app,cors_allowed_origins="*")
 online_users = []
 num_online_users = len(online_users)
 online_users_tags = dict()
-
+searching_flag = False
 unpaired_users = []
 
 
@@ -56,7 +56,7 @@ def handle_update_tags(tags):
 def search_match(user, users_list):
     
     user_tags = online_users_tags[user]
-    print( "USER_TAGS:",user_tags)
+    
     for u in users_list:
         if u != user:
             other_user_tags = online_users_tags[u]
@@ -65,23 +65,29 @@ def search_match(user, users_list):
                 print("MATCH FOUND:",user,u)
                 return u
             if not user_tags and not other_user_tags:
-                print("MATCH FOUND:",user,u)
+                print("MATCH FOUND (no tags):",user,u)
                 return u 
     return None
 
 @socketio.on("user-searching")
 def handle_user_searching():
+    global searching_flag
+    searching_flag = True
     sid = request.sid
     unpaired_users.append(sid)
-    print("Unpaired users antes del match:", unpaired_users)
+    
     start_time = time.time()  # Tiempo de inicio
-    while time.time() - start_time <= 5:
-        if len(unpaired_users) > 1:
+    remove_tags_emitted = False  # Bandera para controlar si se emitió el evento de eliminación de etiquetas
+    
+    while time.time() - start_time <= 10:
+        if not searching_flag:
+            print("Búsqueda detenida manualmente")
+            return None
+        
+        if len(online_users) > 1:
             match = search_match(sid, unpaired_users)
-            print("Unpaired users despues del match:", unpaired_users)
             if match:
                 print("Sending emit match-found...")
-                # Emitir el evento "match-found" al usuario con el SID correspondiente
                 emit("match-found", sid, room=match)
                 emit("match-found", match, room=sid)
                 try:
@@ -89,14 +95,33 @@ def handle_user_searching():
                     unpaired_users.remove(match)
                 except ValueError:
                     pass  # El elemento ya ha sido eliminado de la lista
-                return  # Salir del bucle
-            else:
-                # Eliminar las etiquetas del usuario y realizar una nueva búsqueda
+                
+                return match # Salir del bucle
+            
+            # Si han pasado 5 segundos y el evento de eliminación de etiquetas no se ha emitido, emitirlo
+            if not remove_tags_emitted and time.time() - start_time >= 5:
+                print("No match found within 5 seconds, removing tags")
                 online_users_tags[sid] = []
-                start_time = time.time()  # Reiniciar el tiempo de inicio
+                socketio.emit("removed-tags")
+                remove_tags_emitted = True
+                
+        else:
+            print("No match found...esperando a otro usuario")
+            
+        if time.time() - start_time > 10:
+            break
+            
     # Si no se encuentra coincidencia dentro del tiempo especificado
     print("Sending emit match-not-found...")
     emit("match-not-found", sid)
+
+
+
+@socketio.on("stop-searching")
+def handle_stop_searching():
+    global searching_flag
+    searching_flag = False # Detener la búsqueda manualmente
+
 
 @socketio.on("unpair")
 def handle_unpair():
@@ -111,7 +136,11 @@ def handle_unpair():
         print("Unpaired users:", unpaired_users)
         emit("unpaired", sid)
                     
-            
+@socketio.on("send-message")
+def handle_send_message(data):
+    print("Mensaje enviado:", data)
+    emit("receive-message", data, room=data["to"])   
+
     
                 
 

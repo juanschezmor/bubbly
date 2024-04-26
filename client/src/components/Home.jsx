@@ -1,5 +1,11 @@
 import { useGlobalContext } from "../context/Context";
 import logo from "../assets/logo.png";
+import {
+  WEB_NAME,
+  APP_DESCRIPTION,
+  TAGS_DESCRIPTION,
+  TAGS_STRING,
+} from "../constants";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -39,7 +45,8 @@ function Home() {
 
   useEffect(() => {
     return () => {
-      setIsSearching(false);
+      //console.log("El home lo esta poniendo en false");
+      //setIsSearching(false);
     };
   }, [setIsSearching]);
 
@@ -61,30 +68,18 @@ function Home() {
                 src={logo}
                 alt="Logo"
               />
-              <h2 className="text-5xl">NombreWeb</h2>
+              <h2 className="text-5xl">{WEB_NAME}</h2>
             </div>
             <div className="pb-5"></div>
             <div className="pb-5 text-xl">
-              <p>
-                <b>NombreApp</b> is an excellent way to make new friends. When
-                you use <b>NombreApp</b>, we randomly match you with someone
-                else and allow you to chat one-on-one. To ensure your safety,
-                chats are anonymous unless you choose to disclose your identity
-                (not recommended!), and you have the option to end a chat at any
-                time. Please be cautious as predators have been known to use{" "}
-                <b>NombreApp</b>
-              </p>
+              <p dangerouslySetInnerHTML={{ __html: APP_DESCRIPTION }} />
               <br />
-              <p>
-                If you prefer, you can specify your interests, and NombreApp
-                will match you with someone who shares similar interests rather
-                than a completely random user.
-              </p>
+              <p dangerouslySetInnerHTML={{ __html: TAGS_DESCRIPTION }} />
             </div>
           </div>
           <div className="w-1/2 h-full flex flex-col items-center justify-evenly p-10">
             <div className="tags w-full h-1/4">
-              <p>Etiquetas</p>
+              <p>{TAGS_STRING}</p>
               <div className="flex items-center">
                 <input
                   type="text"
@@ -127,7 +122,7 @@ function Home() {
             </div>
             <div>
               <button className="boton" onClick={startChatting}>
-                Empezar a chatear!
+                Start Chatting!
               </button>
             </div>
           </div>
