@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HomeMobile from "../components/HomeMobile";
 function HomePage() {
-  const { tags, setTags, setIsSearching } = useGlobalContext();
+  const { tags, setTags, setIsSearching, isSearching } = useGlobalContext();
   const [inputValue, setInputValue] = useState("");
 
   const handleInputChange = (event) => {
@@ -38,11 +38,8 @@ function HomePage() {
   };
 
   useEffect(() => {
-    return () => {
-      //console.log("El home lo esta poniendo en false");
-      //setIsSearching(false);
-    };
-  }, [setIsSearching]);
+    console.log("isSearching:", isSearching);
+  }, [isSearching]);
 
   useEffect(() => {
     console.log(tags);

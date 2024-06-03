@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 function Chat({
   isSearching,
   matchedUser,
+  searchNext,
   handleExit,
   message,
   messages,
@@ -11,7 +12,10 @@ function Chat({
   sendMessage,
   startChattingAgain,
   userId,
+  partnerDisconnected,
 }) {
+  const isChatDisabled = matchedUser === null;
+
   return (
     <>
       <div className="hidden md:flex screen md:flex-col">
@@ -37,22 +41,6 @@ function Chat({
           {/* Área de mensajes */}
 
           <div className="flex-1 p-4 overflow-y-auto">
-            {!isSearching & (matchedUser == null) ? (
-              <div>
-                <p>
-                  We couldnt find a match, press here if you want to keep trying
-                </p>
-                <button className="boton" onClick={startChattingAgain}>
-                  Start chatting
-                </button>
-              </div>
-            ) : null}
-            {removedTags && (
-              <div className="removed-tags-message">
-                We couldnt find any user that matches your tags, we removed the
-                tags to find a user
-              </div>
-            )}
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -72,9 +60,43 @@ function Chat({
                 </div>
               </div>
             ))}
+            {!isSearching & (matchedUser == null) & !partnerDisconnected ? (
+              <div>
+                <p>
+                  We couldnt find a match, press here if you want to keep trying
+                </p>
+                <button className="boton" onClick={startChattingAgain}>
+                  Start chatting
+                </button>
+              </div>
+            ) : null}
+            {removedTags && (
+              <div>
+                We couldnt find any user that matches your tags, we removed the
+                tags to find a user
+              </div>
+            )}
+            {partnerDisconnected && (
+              <div>
+                <p>
+                  Your partner has disconnected, press here if you want to keep
+                  trying
+                </p>
+                <button className="boton" onClick={startChattingAgain}>
+                  Start chatting
+                </button>
+              </div>
+            )}
           </div>
           {/* Entrada de mensaje */}
           <div className="w-full flex items-center mt-5 p-4 border-t border-gray-200">
+            <button
+              className="next-btn px-4 py-2 mr-2"
+              onClick={searchNext}
+              disabled={isSearching || isChatDisabled}
+            >
+              Next
+            </button>
             <input
               type="text"
               className="flex-1 h-3/4 mr-2 py-2 px-4 border border-gray-300 rounded-lg focus:outline-none"
@@ -86,8 +108,13 @@ function Chat({
                   sendMessage();
                 }
               }}
+              disabled={isChatDisabled}
             />
-            <button className="boton-enviar px-4 py-2 " onClick={sendMessage}>
+            <button
+              className="send-btn px-4 py-2 "
+              onClick={sendMessage}
+              disabled={isChatDisabled}
+            >
               Enviar
             </button>
           </div>
@@ -108,6 +135,8 @@ Chat.propTypes = {
   sendMessage: PropTypes.func.isRequired,
   startChattingAgain: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,
+  partnerDisconnected: PropTypes.bool.isRequired,
+  searchNext: PropTypes.func.isRequired,
 };
 
 export default Chat;

@@ -73,6 +73,7 @@ const Socket = () => {
     };
   }, [setOnlineUsers]);
 
+  //SEARCHING
   useEffect(() => {
     if (isSearching) {
       socket.emit("update-tags", tags);
@@ -80,6 +81,7 @@ const Socket = () => {
     }
   }, [isSearching]);
 
+  //MATCH FOUND
   useEffect(() => {
     socket.on("match-found", (user) => {
       console.log("Matchfound lo esta poniendo en false");
@@ -93,11 +95,14 @@ const Socket = () => {
       socket.off("user_matched");
     };
   }, [setMatchedUser]);
+
+  //MATCH NOT FOUND
   useEffect(() => {
     socket.on("match-not-found", () => {
       console.log("Match not found lo esta poniendo en false");
       setIsSearching(false);
       setRemovedTags(false);
+      setMatchedUser(null);
       console.log("No user found");
     });
 
@@ -106,6 +111,7 @@ const Socket = () => {
     };
   });
 
+  //RECEIVE MESSAGE
   useEffect(() => {
     socket.on("receive-message", (messageData) => {
       console.log("Mensaje recibido:", messageData);
@@ -117,7 +123,7 @@ const Socket = () => {
     };
   }, [setMessages]);
 
-  // event when "unpaired" is received
+  // UNPAIRED
   useEffect(() => {
     socket.on("unpaired", () => {
       console.log("Unpaired");
@@ -129,12 +135,11 @@ const Socket = () => {
     };
   }, [setMatchedUser]);
 
-  // event when "partner-disconnected" is received
+  // PARTNER DISCONNECTED
   useEffect(() => {
     socket.on("partner-disconnected", () => {
       console.log("Partner disconnected");
       setPartnerDisconnected(true);
-      setMatchedUser(null);
     });
 
     return () => {

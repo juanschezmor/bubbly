@@ -17,32 +17,40 @@ function ChatPage() {
     userId,
     removedTags,
     setRemovedTags,
+    partnerDisconnected,
+    setPartnerDisconnected,
   } = useGlobalContext();
   const navigate = useNavigate();
   const navigateTo = (path) => {
     navigate(path);
   };
+  const resetStates = () => {
+    setMatchedUser(null);
+    setIsSearching(false);
+    setMessages([]);
+    setPartnerDisconnected(false);
+    setRemovedTags(false);
+  };
+
+  const searchNext = () => {
+    if (!isSearching && matchedUser === null) {
+      setIsSearching(true);
+      setMatchedUser(null);
+      setMessages([]);
+      setPartnerDisconnected(false);
+    }
+  };
 
   const handleExit = () => {
     console.log("exitinggg");
 
-    setMatchedUser(null);
-    setIsSearching(false);
-    setMessages([]);
-    navigateTo("/");
+    resetStates();
     socket.emit("unpair");
     socket.emit("stop-searching");
-    return () => {
-      socket.off("pairing-user");
-      socket.off("stop-searching");
-    };
+    navigateTo("/");
+
+    socket.off("stop-searching");
   };
-  // When matchedUser changes and it's null, exit
-  useEffect(() => {
-    if (matchedUser == null && !isSearching) {
-      handleExit();
-    }
-  }, [matchedUser]);
 
   useEffect(() => {
     console.log("isSearching:", isSearching);
@@ -60,6 +68,7 @@ function ChatPage() {
       socket.off("removed-tags", handleRemovedTags);
     };
   }, [setRemovedTags]);
+
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
   };
@@ -81,9 +90,15 @@ function ChatPage() {
     setIsSearching(true);
     setRemovedTags(false);
     setMessages([]);
-
-    socket.emit("user-searching");
+    setPartnerDisconnected(false);
   };
+  //Event for partnerDisconnected changes
+  useEffect(() => {
+    if (partnerDisconnected) {
+      console.log("Partner disconnected");
+      setMatchedUser(null);
+    }
+  }, [partnerDisconnected]);
 
   return (
     <>
@@ -91,6 +106,7 @@ function ChatPage() {
         {...{
           isSearching,
           matchedUser,
+          searchNext,
           handleExit,
           message,
           messages,
@@ -99,12 +115,14 @@ function ChatPage() {
           sendMessage,
           startChattingAgain,
           userId,
+          partnerDisconnected,
         }}
       />
       <Chat
         {...{
           isSearching,
           matchedUser,
+          searchNext,
           handleExit,
           message,
           messages,
@@ -113,6 +131,7 @@ function ChatPage() {
           sendMessage,
           startChattingAgain,
           userId,
+          partnerDisconnected,
         }}
       />
     </>

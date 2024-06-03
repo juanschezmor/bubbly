@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 function ChatMobile({
   isSearching,
   matchedUser,
+  searchNext,
   handleExit,
   message,
   messages,
@@ -11,6 +12,7 @@ function ChatMobile({
   startChattingAgain,
   userId,
 }) {
+  const isChatDisabled = matchedUser === null;
   return (
     <>
       <div className="screen-mobile flex flex-col md:hidden">
@@ -74,14 +76,26 @@ function ChatMobile({
           </div>
           {/* Entrada de mensaje */}
           <div className="w-full flex items-center mt-5 p-4 border-t border-gray-200 ">
+            <button
+              className="next-btn px-4 py-2 mr-2"
+              onClick={searchNext}
+              disabled={isSearching || isChatDisabled}
+            >
+              Next
+            </button>
             <input
               type="text"
               className="flex-1 h-3/4 mr-2 py-2 px-4 border border-gray-300 rounded-lg focus:outline-none"
               placeholder="Escribe tu mensaje..."
               value={message}
               onChange={handleMessageChange}
+              disabled={isChatDisabled}
             />
-            <button className="boton-enviar px-4 py-2 " onClick={sendMessage}>
+            <button
+              className="boton-enviar px-4 py-2 "
+              onClick={sendMessage}
+              disabled={isChatDisabled}
+            >
               Enviar
             </button>
           </div>
@@ -101,6 +115,7 @@ ChatMobile.propTypes = {
   sendMessage: PropTypes.func.isRequired,
   startChattingAgain: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,
+  searchNext: PropTypes.func.isRequired,
 };
 
 export default ChatMobile;

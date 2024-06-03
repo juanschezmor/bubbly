@@ -1,11 +1,14 @@
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
-import time
+from gevent import sleep
 from models.user import User
 from models.user_manager import UserManager
+from gevent import spawn
+import time
+import random
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 
 user_manager = UserManager()
 
@@ -50,20 +53,19 @@ def handle_update_tags(tags):
     print("USERS_TAGS:", {u.sid: u.tags for u in user_manager.online_users})
 
 
-@socketio.on("user-searching")
-def handle_user_searching():
-    global searching_flag
-    searching_flag = True
-    user_id = request.sid
-    user = user_manager.get_user_by_sid(user_id)
-    if user:
-        user_manager.add_unpaired_user(user)
+def search(user):
+    user_manager.add_searching_user(user)
+    print("User started searching:", user.sid)
+    print("Users who are searching:", [u.sid for u in user_manager.users_searching])
 
     start_time = time.time()
     remove_tags_emitted = False
 
     while time.time() - start_time <= 10:
-        if not searching_flag:
+        elapsed_time = time.time() - start_time
+        print("Time elapsed:", elapsed_time)
+
+        if user not in user_manager.users_searching:
             print("Búsqueda detenida manualmente")
             return None
 
@@ -71,33 +73,50 @@ def handle_user_searching():
             match = user_manager.search_match(user)
             if match:
                 print("Sending emit match-found...")
-                emit("match-found", user.sid, room=match.sid)
-                emit("match-found", match.sid, room=user.sid)
-                user_manager.remove_unpaired_user(user)
-                user_manager.remove_unpaired_user(match)
+                socketio.emit("match-found", user.sid, room=match.sid)
+                socketio.emit("match-found", match.sid, room=user.sid)
+                user_manager.remove_searching_user(user)
+                user_manager.remove_searching_user(match)
                 user_manager.add_active_pair(user.sid, match.sid)
                 print("Active pairs:", user_manager.get_pairs())
                 return match
 
-            if not remove_tags_emitted and time.time() - start_time >= 5:
+            if not remove_tags_emitted and elapsed_time >= 5:
                 print("No match found within 5 seconds, removing tags")
                 user.clear_tags()
-                socketio.emit("removed-tags")
+                socketio.emit("removed-tags", room=user.sid)
                 remove_tags_emitted = True
         else:
             print("No match found...esperando a otro usuario")
 
-        if time.time() - start_time > 10:
+        if elapsed_time > 10:
             break
 
+        # Esperar 1 segundo antes de la próxima iteración
+        sleep(1)
+
+    if user in user_manager.users_searching:
+        user_manager.remove_searching_user(user)
     print("Sending emit match-not-found...")
-    emit("match-not-found", user.sid)
+    socketio.emit("match-not-found", user.sid)
+
+
+@socketio.on("user-searching")
+def handle_user_searching():
+    user_id = request.sid
+    user = user_manager.get_user_by_sid(user_id)
+    random.shuffle(user_manager.users_searching)
+    if user:
+        spawn(search, user)
 
 
 @socketio.on("stop-searching")
 def handle_stop_searching():
-    global searching_flag
-    searching_flag = False
+    user_id = request.sid
+    user = user_manager.get_user_by_sid(user_id)
+    if user:
+        user_manager.remove_searching_user(user)
+        print("User stopped searching:", user_id)
 
 
 @socketio.on("unpair")
@@ -108,9 +127,11 @@ def handle_unpair():
         print("Pairs:", user_manager.get_pairs())
         partner = user_manager.get_partner(user.sid)
         print("Removing pair:", user.sid, partner)
-        user_manager.add_unpaired_user(user)
-        print("User unpaired:", user.sid)
-        print("Unpaired users:", [u.sid for u in user_manager.unpaired_users])
+        user_manager.remove_active_pair(user.sid, partner)
+        user_manager.remove_searching_user(user)
+        user_manager.remove_searching_user(partner)
+        print("User removed from searching users:", user.sid)
+        print("Users who are searching:", [u.sid for u in user_manager.users_searching])
         emit("unpaired", user.sid)
         print("Sending emit partner-disconnected to...", partner)
         emit("partner-disconnected", room=partner)
