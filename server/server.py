@@ -1,149 +1,126 @@
-from flask import Flask,request, render_template
-from flask_socketio import SocketIO
-from flask_socketio import emit
-import random
-import time 
+from flask import Flask, request
+from flask_socketio import SocketIO, emit
+import time
+from models.user import User
+from models.user_manager import UserManager
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-socketio = SocketIO(app,cors_allowed_origins="*")
-
-online_users = []
-num_online_users = len(online_users)
-online_users_tags = dict()
-searching_flag = False
-unpaired_users = []
+user_manager = UserManager()
 
 
-@socketio.on('connect')
+@socketio.on("connect")
 def handle_connect():
-    global online_users
     user_id = request.sid
-    online_users.append(user_id)
-    print('New online user:', user_id)
-    print('Online users:', online_users)
-    # Emitir la lista de usuarios en línea a todos los clientes
-    socketio.emit('get-online-users', online_users)
-    emit('user-id', user_id, room=user_id)
+    user = User(user_id)
+    user_manager.add_user(user)
+    print("New online user:", user_id)
+    print("Online users:", user_manager.get_all_user_sids())
+    socketio.emit("get-online-users", user_manager.get_all_user_sids())
+    emit("user-id", user_id, room=user_id)
 
-@socketio.on('disconnect')
+
+@socketio.on("disconnect")
 def handle_disconnect():
-    global online_users
     user_id = request.sid
-    if user_id in online_users:
-        online_users.remove(user_id)
-        if user_id in unpaired_users:
-            unpaired_users.remove(user_id)
-        print('User disconnected:', user_id)
-        print('Online users:', online_users)
-        # Emitir la lista de usuarios en línea a todos los clientes
-        socketio.emit('get-online-users', online_users)
+    user = user_manager.get_user_by_sid(user_id)
+    if user:
+        partner_sid = user_manager.get_partner(user)
+        if partner_sid:
+            print("Notifying partner about disconnection:", partner_sid)
+            emit("partner-disconnected", room=partner_sid)
+        user_manager.remove_user(user)
+        print("User disconnected:", user_id)
+        print("Online users:", user_manager.get_all_user_sids())
+        socketio.emit("get-online-users", user_manager.get_all_user_sids())
 
-@socketio.on('online-users')
+
+@socketio.on("online-users")
 def send_online_users():
-    socketio.emit('get-online-users', online_users)
+    socketio.emit("get-online-users", user_manager.get_all_user_sids())
+
 
 @socketio.on("update-tags")
 def handle_update_tags(tags):
-    # Obtener el SID del cliente que envió los tags
-    sid = request.sid
-    # Actualizar el diccionario con los tags asociados al SID
-    online_users_tags[sid] = tags
-    print("USERS_TAGS:",online_users_tags)
+    user_id = request.sid
+    user = user_manager.get_user_by_sid(user_id)
+    if user:
+        user.update_tags(tags)
+    print("USERS_TAGS:", {u.sid: u.tags for u in user_manager.online_users})
 
-
-
-def search_match(user, users_list):
-    
-    user_tags = online_users_tags[user]
-    
-    for u in users_list:
-        if u != user:
-            other_user_tags = online_users_tags[u]
-            print("OTHER_USER_TAGS:",other_user_tags)
-            if user_tags and other_user_tags and set(user_tags) & set(other_user_tags):
-                print("MATCH FOUND:",user,u)
-                return u
-            if not user_tags and not other_user_tags:
-                print("MATCH FOUND (no tags):",user,u)
-                return u 
-    return None
 
 @socketio.on("user-searching")
 def handle_user_searching():
     global searching_flag
     searching_flag = True
-    sid = request.sid
-    unpaired_users.append(sid)
-    
-    start_time = time.time()  # Tiempo de inicio
-    remove_tags_emitted = False  # Bandera para controlar si se emitió el evento de eliminación de etiquetas
-    
+    user_id = request.sid
+    user = user_manager.get_user_by_sid(user_id)
+    if user:
+        user_manager.add_unpaired_user(user)
+
+    start_time = time.time()
+    remove_tags_emitted = False
+
     while time.time() - start_time <= 10:
         if not searching_flag:
             print("Búsqueda detenida manualmente")
             return None
-        
-        if len(online_users) > 1:
-            match = search_match(sid, unpaired_users)
+
+        if len(user_manager.online_users) > 1:
+            match = user_manager.search_match(user)
             if match:
                 print("Sending emit match-found...")
-                emit("match-found", sid, room=match)
-                emit("match-found", match, room=sid)
-                try:
-                    unpaired_users.remove(sid)
-                    unpaired_users.remove(match)
-                except ValueError:
-                    pass  # El elemento ya ha sido eliminado de la lista
-                
-                return match # Salir del bucle
-            
-            # Si han pasado 5 segundos y el evento de eliminación de etiquetas no se ha emitido, emitirlo
+                emit("match-found", user.sid, room=match.sid)
+                emit("match-found", match.sid, room=user.sid)
+                user_manager.remove_unpaired_user(user)
+                user_manager.remove_unpaired_user(match)
+                user_manager.add_active_pair(user.sid, match.sid)
+                print("Active pairs:", user_manager.get_pairs())
+                return match
+
             if not remove_tags_emitted and time.time() - start_time >= 5:
                 print("No match found within 5 seconds, removing tags")
-                online_users_tags[sid] = []
+                user.clear_tags()
                 socketio.emit("removed-tags")
                 remove_tags_emitted = True
-                
         else:
             print("No match found...esperando a otro usuario")
-            
+
         if time.time() - start_time > 10:
             break
-            
-    # Si no se encuentra coincidencia dentro del tiempo especificado
-    print("Sending emit match-not-found...")
-    emit("match-not-found", sid)
 
+    print("Sending emit match-not-found...")
+    emit("match-not-found", user.sid)
 
 
 @socketio.on("stop-searching")
 def handle_stop_searching():
     global searching_flag
-    searching_flag = False # Detener la búsqueda manualmente
+    searching_flag = False
 
 
 @socketio.on("unpair")
 def handle_unpair():
-    sid = request.sid
-    if sid in online_users:
-        try:
-            unpaired_users.remove(sid)
-                    
-        except ValueError:
-            pass  # El elemento ya ha sido eliminado de la lista
-        print("User unpaired:", sid)
-        print("Unpaired users:", unpaired_users)
-        emit("unpaired", sid)
-                    
+    user_id = request.sid
+    user = user_manager.get_user_by_sid(user_id)
+    if user:
+        print("Pairs:", user_manager.get_pairs())
+        partner = user_manager.get_partner(user.sid)
+        print("Removing pair:", user.sid, partner)
+        user_manager.add_unpaired_user(user)
+        print("User unpaired:", user.sid)
+        print("Unpaired users:", [u.sid for u in user_manager.unpaired_users])
+        emit("unpaired", user.sid)
+        print("Sending emit partner-disconnected to...", partner)
+        emit("partner-disconnected", room=partner)
+
+
 @socketio.on("send-message")
 def handle_send_message(data):
     print("Mensaje enviado:", data)
-    emit("receive-message", data, room=data["to"])   
-
-    
-                
+    emit("receive-message", data, room=data["to"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     socketio.run(app)

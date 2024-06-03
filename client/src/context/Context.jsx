@@ -12,6 +12,7 @@ const ContextProvider = ({ children }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [removedTags, setRemovedTags] = useState(false);
+  const [partnerDisconnected, setPartnerDisconnected] = useState(false);
   return (
     <>
       <Context.Provider
@@ -34,6 +35,8 @@ const ContextProvider = ({ children }) => {
           setMessages,
           removedTags,
           setRemovedTags,
+          partnerDisconnected,
+          setPartnerDisconnected,
         }}
       >
         {children}

@@ -16,6 +16,7 @@ const Socket = () => {
     setMatchedUser,
     setMessages,
     setRemovedTags,
+    setPartnerDisconnected,
   } = useGlobalContext();
 
   useEffect(() => {
@@ -115,6 +116,31 @@ const Socket = () => {
       socket.off("receive-message");
     };
   }, [setMessages]);
+
+  // event when "unpaired" is received
+  useEffect(() => {
+    socket.on("unpaired", () => {
+      console.log("Unpaired");
+      setMatchedUser(null);
+    });
+
+    return () => {
+      socket.off("unpaired");
+    };
+  }, [setMatchedUser]);
+
+  // event when "partner-disconnected" is received
+  useEffect(() => {
+    socket.on("partner-disconnected", () => {
+      console.log("Partner disconnected");
+      setPartnerDisconnected(true);
+      setMatchedUser(null);
+    });
+
+    return () => {
+      socket.off("partner-disconnected");
+    };
+  }, []);
 };
 
 export default Socket;

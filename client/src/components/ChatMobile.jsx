@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
-
-function Chat({
+function ChatMobile({
   isSearching,
   matchedUser,
   handleExit,
@@ -14,8 +13,8 @@ function Chat({
 }) {
   return (
     <>
-      <div className="hidden md:flex screen md:flex-col">
-        <div className="main-container flex flex-col">
+      <div className="screen-mobile flex flex-col md:hidden">
+        <div className="main-container-mobile flex flex-col">
           <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
             <p>Is searching: {isSearching ? "True" : "False"}</p>
 
@@ -36,7 +35,7 @@ function Chat({
 
           {/* Área de mensajes */}
 
-          <div className="flex-1 p-4 overflow-y-auto">
+          <div className="flex-1 p-4 overflow-y-auto ">
             {!isSearching & (matchedUser == null) ? (
               <div>
                 <p>
@@ -74,18 +73,13 @@ function Chat({
             ))}
           </div>
           {/* Entrada de mensaje */}
-          <div className="w-full flex items-center mt-5 p-4 border-t border-gray-200">
+          <div className="w-full flex items-center mt-5 p-4 border-t border-gray-200 ">
             <input
               type="text"
               className="flex-1 h-3/4 mr-2 py-2 px-4 border border-gray-300 rounded-lg focus:outline-none"
               placeholder="Escribe tu mensaje..."
               value={message}
               onChange={handleMessageChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  sendMessage();
-                }
-              }}
             />
             <button className="boton-enviar px-4 py-2 " onClick={sendMessage}>
               Enviar
@@ -96,8 +90,7 @@ function Chat({
     </>
   );
 }
-
-Chat.propTypes = {
+ChatMobile.propTypes = {
   isSearching: PropTypes.bool.isRequired,
   matchedUser: PropTypes.string,
   handleExit: PropTypes.func.isRequired,
@@ -110,4 +103,4 @@ Chat.propTypes = {
   userId: PropTypes.string.isRequired,
 };
 
-export default Chat;
+export default ChatMobile;

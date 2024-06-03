@@ -1,65 +1,22 @@
-import { useGlobalContext } from "../context/Context";
 import logo from "../assets/logo.png";
+import PropTypes from "prop-types";
 import {
   WEB_NAME,
   APP_DESCRIPTION,
   TAGS_DESCRIPTION,
   TAGS_STRING,
 } from "../constants";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-
-function Home() {
-  const { tags, setTags, setIsSearching } = useGlobalContext();
-  const [inputValue, setInputValue] = useState("");
-
-  const handleInputChange = (event) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleAddTag = () => {
-    let tag = inputValue.trim();
-    if (tag !== "") {
-      if (tag.length > 10) {
-        alert("You can't add a tag with more than 10 characters!");
-      } else {
-        setTags((prevTags) => [...prevTags, inputValue.trim()]);
-        setInputValue("");
-      }
-    }
-  };
-  const handleRemoveTag = (indexToRemove) => {
-    setTags((prevTags) =>
-      prevTags.filter((_, index) => index !== indexToRemove)
-    );
-  };
-
-  const navigate = useNavigate();
-  const navigateTo = (path) => {
-    navigate(path);
-  };
-  const startChatting = () => {
-    setIsSearching(true);
-    navigateTo("/chat");
-  };
-
-  useEffect(() => {
-    return () => {
-      //console.log("El home lo esta poniendo en false");
-      //setIsSearching(false);
-    };
-  }, [setIsSearching]);
-
-  useEffect(() => {
-    console.log(tags);
-    if (tags.length > 9) {
-      alert("You can't add more than 10 tags!");
-    }
-  }, [tags]);
-
+function Home({
+  tags,
+  inputValue,
+  handleInputChange,
+  handleAddTag,
+  handleRemoveTag,
+  startChatting,
+}) {
   return (
     <>
-      <div className="screen">
+      <div className=" hidden md:flex screen">
         <div className="main-container flex flex-row">
           <div className="w-1/2 h-full flex flex-col justify-center items-center p-3">
             <div className="w-full max-h-36 flex p-2 items-center">
@@ -85,6 +42,11 @@ function Home() {
                   type="text"
                   value={inputValue}
                   onChange={handleInputChange}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleAddTag();
+                    }
+                  }}
                 />
                 <button className="boton ml-2 w-36" onClick={handleAddTag}>
                   Add
@@ -131,5 +93,13 @@ function Home() {
     </>
   );
 }
-
+//Prop validation
+Home.propTypes = {
+  tags: PropTypes.array,
+  inputValue: PropTypes.string,
+  handleInputChange: PropTypes.func,
+  handleAddTag: PropTypes.func,
+  handleRemoveTag: PropTypes.func,
+  startChatting: PropTypes.func,
+};
 export default Home;
