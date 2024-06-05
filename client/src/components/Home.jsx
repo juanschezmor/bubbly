@@ -34,11 +34,12 @@ function Home({
               <p dangerouslySetInnerHTML={{ __html: TAGS_DESCRIPTION }} />
             </div>
           </div>
-          <div className="w-1/2 h-full flex flex-col items-center justify-evenly p-10">
-            <div className="tags w-full h-1/4">
-              <p>{TAGS_STRING}</p>
-              <div className="flex items-center">
+          <div className="w-1/2 h-full flex flex-col items-center justify-center p-10">
+            <div className="tags w-full h-1/4 flex flex-col justify-center items-center">
+              <p className="">{TAGS_STRING}</p>
+              <div className="flex items-center justify-center">
                 <input
+                  className="input-tags"
                   type="text"
                   value={inputValue}
                   onChange={handleInputChange}
@@ -48,8 +49,8 @@ function Home({
                     }
                   }}
                 />
-                <button className="boton ml-2 w-36" onClick={handleAddTag}>
-                  Add
+                <button className="add-tag-btn ml-2" onClick={handleAddTag}>
+                  <p className="add-text">Add</p>
                 </button>
               </div>
               <div className="tags-box">

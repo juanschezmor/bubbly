@@ -1,5 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import PropTypes from "prop-types";
+import { colorSchemes } from "../ColorSchemes";
+
 const Context = createContext();
 
 const ContextProvider = ({ children }) => {
@@ -13,6 +15,14 @@ const ContextProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [removedTags, setRemovedTags] = useState(false);
   const [partnerDisconnected, setPartnerDisconnected] = useState(false);
+  const [colorScheme, setColorScheme] = useState(colorSchemes[0].colors);
+
+  const changeColorScheme = (scheme) => {
+    setColorScheme(scheme);
+    for (const key in scheme) {
+      document.documentElement.style.setProperty(key, scheme[key]);
+    }
+  };
 
   const resetStates = () => {
     setMatchedUser(null);
@@ -21,36 +31,37 @@ const ContextProvider = ({ children }) => {
     setPartnerDisconnected(false);
     setRemovedTags(false);
   };
+
   return (
-    <>
-      <Context.Provider
-        value={{
-          userId,
-          setUserId,
-          onlineUsers,
-          setOnlineUsers,
-          isConnected,
-          setIsConnected,
-          tags,
-          setTags,
-          matchedUser,
-          setMatchedUser,
-          isSearching,
-          setIsSearching,
-          message,
-          setMessage,
-          messages,
-          setMessages,
-          removedTags,
-          setRemovedTags,
-          partnerDisconnected,
-          setPartnerDisconnected,
-          resetStates,
-        }}
-      >
-        {children}
-      </Context.Provider>
-    </>
+    <Context.Provider
+      value={{
+        userId,
+        setUserId,
+        onlineUsers,
+        setOnlineUsers,
+        isConnected,
+        setIsConnected,
+        tags,
+        setTags,
+        matchedUser,
+        setMatchedUser,
+        isSearching,
+        setIsSearching,
+        message,
+        setMessage,
+        messages,
+        setMessages,
+        removedTags,
+        setRemovedTags,
+        partnerDisconnected,
+        setPartnerDisconnected,
+        resetStates,
+        colorScheme,
+        changeColorScheme,
+      }}
+    >
+      {children}
+    </Context.Provider>
   );
 };
 

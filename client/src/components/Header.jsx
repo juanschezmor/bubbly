@@ -1,12 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/Context";
 import { WEB_NAME } from "../constants";
 import logo from "../assets/logo.png";
+import ColorModal from "./ColorModal";
 
 function Header() {
   const navigate = useNavigate();
-  const { onlineUsers, userId } = useGlobalContext();
+  const { onlineUsers, userId, changeColorScheme } = useGlobalContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openColorModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeColorModal = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     console.log(userId);
@@ -27,10 +36,18 @@ function Header() {
         </a>
       </div>
       <div className="flex flex-col md:flex-row items-center">
+        <a onClick={openColorModal} className="change-color-btn mr-3">
+          Change color
+        </a>
         <p className="md:mr-4">User: {userId}</p>
         {/* Otros elementos del header, como botones de navegación, se pueden agregar aquí */}
         <p>Online users: {onlineUsers && onlineUsers.length}</p>
       </div>
+      <ColorModal
+        isOpen={isModalOpen}
+        onClose={closeColorModal}
+        changeColorScheme={changeColorScheme}
+      />
     </header>
   );
 }
