@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useRef, useEffect } from "react";
 function ChatMobile({
   isSearching,
   matchedUser,
@@ -13,6 +14,14 @@ function ChatMobile({
   stopSearching,
 }) {
   const isChatDisabled = matchedUser === null;
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   return (
     <>
       <div className="screen-mobile flex flex-col md:hidden">
@@ -45,7 +54,7 @@ function ChatMobile({
 
           {/* Área de mensajes */}
 
-          <div className="flex-1 p-4 overflow-y-auto ">
+          <div ref={chatEndRef} className="flex-1 p-4 overflow-y-auto ">
             {!isSearching & (matchedUser == null) ? (
               <div>
                 <p>

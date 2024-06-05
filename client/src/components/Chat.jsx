@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useRef, useEffect } from "react";
 
 function Chat({
   isSearching,
@@ -15,6 +16,13 @@ function Chat({
   stopSearching,
 }) {
   const isChatDisabled = matchedUser === null;
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   return (
     <>
@@ -47,7 +55,7 @@ function Chat({
 
           {/* Área de mensajes */}
 
-          <div className="flex-1 p-4 overflow-y-auto">
+          <div ref={chatEndRef} className="flex-1 p-4 overflow-y-auto">
             {messages.map((message, index) => (
               <div
                 key={index}

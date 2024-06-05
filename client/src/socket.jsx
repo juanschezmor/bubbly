@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import io from "socket.io-client";
 import { useGlobalContext } from "./context/Context";
 
-const serverURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const serverURL =
+  import.meta.env.VITE_BACKEND_URL || "http://134.209.84.22:5000";
 console.log("Connecting to server at:", import.meta.env.VITE_BACKEND_URL);
 export const socket = io(serverURL);
 
