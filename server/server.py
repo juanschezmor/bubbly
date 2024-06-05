@@ -4,13 +4,20 @@ from gevent import sleep
 from models.user import User
 from models.user_manager import UserManager
 from gevent import spawn
+from flask_cors import CORS
 import time
 import random
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 
 user_manager = UserManager()
+
+
+@app.route("/test")
+def test():
+    return "Hello, World!"
 
 
 @socketio.on("connect")
@@ -97,8 +104,8 @@ def search(user):
 
     if user in user_manager.users_searching:
         user_manager.remove_searching_user(user)
-    print("Sending emit match-not-found...")
-    socketio.emit("match-not-found", user.sid)
+    print(f"Sending emit match-not-found to {user.sid}...")
+    socketio.emit("match-not-found", room=user.sid)
 
 
 @socketio.on("user-searching")
@@ -144,4 +151,4 @@ def handle_send_message(data):
 
 
 if __name__ == "__main__":
-    socketio.run(app)
+    socketio.run(app, host="0.0.0.0", port=5000)

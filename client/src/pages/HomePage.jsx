@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HomeMobile from "../components/HomeMobile";
 function HomePage() {
-  const { tags, setTags, setIsSearching, isSearching } = useGlobalContext();
+  const { tags, setTags, setIsSearching, isSearching, resetStates } =
+    useGlobalContext();
   const [inputValue, setInputValue] = useState("");
 
   const handleInputChange = (event) => {
@@ -33,6 +34,7 @@ function HomePage() {
     navigate(path);
   };
   const startChatting = () => {
+    resetStates();
     setIsSearching(true);
     navigateTo("/chat");
   };

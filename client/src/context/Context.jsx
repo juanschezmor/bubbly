@@ -13,6 +13,14 @@ const ContextProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [removedTags, setRemovedTags] = useState(false);
   const [partnerDisconnected, setPartnerDisconnected] = useState(false);
+
+  const resetStates = () => {
+    setMatchedUser(null);
+    setIsSearching(false);
+    setMessages([]);
+    setPartnerDisconnected(false);
+    setRemovedTags(false);
+  };
   return (
     <>
       <Context.Provider
@@ -37,6 +45,7 @@ const ContextProvider = ({ children }) => {
           setRemovedTags,
           partnerDisconnected,
           setPartnerDisconnected,
+          resetStates,
         }}
       >
         {children}

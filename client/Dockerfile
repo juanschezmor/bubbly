@@ -1,20 +1,28 @@
-# Etapa de Construcción
-FROM node:18 AS build
+# Usar una imagen base de Node.js
+FROM node:21.7.3-alpine as builder
 
+# Establecer un directorio de trabajo
 WORKDIR /app
 
-COPY package*.json ./
+# Copiar los archivos de paquetes e instalar las dependencias
+COPY package*.json .
+
 RUN npm install
 
+# Copiar el resto de los archivos del cliente
 COPY . .
+
 RUN npm run build
 
-# Etapa de Producción
-FROM nginx:alpine
+# Fase de ejecución
+FROM nginx:1.19.0
 
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /usr/share/nginx/html
 
-EXPOSE 80
+RUN rm -rf ./*
 
-CMD ["nginx", "-g", "daemon off;"]
+# Copiar los artefactos de construcción de la etapa de construcción
+COPY --from=builder /app/dist .
+
+# Configurar el entrypoint
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

@@ -142,6 +142,20 @@ input:focus {
   color: var(--primary-color);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+.stop-btn {
+  background-color: var(--text-color);
+  color: var(--secondary-color);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.stop-btn:hover {
+  background-color: var(--accent-color);
+  color: var(--primary-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 .tag-box {
   display: flex;
   flex-wrap: wrap;

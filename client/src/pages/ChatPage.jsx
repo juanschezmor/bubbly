@@ -19,37 +19,27 @@ function ChatPage() {
     setRemovedTags,
     partnerDisconnected,
     setPartnerDisconnected,
+    resetStates,
   } = useGlobalContext();
   const navigate = useNavigate();
   const navigateTo = (path) => {
     navigate(path);
   };
-  const resetStates = () => {
-    setMatchedUser(null);
-    setIsSearching(false);
-    setMessages([]);
-    setPartnerDisconnected(false);
-    setRemovedTags(false);
-  };
 
-  const searchNext = () => {
-    if (!isSearching && matchedUser === null) {
-      setIsSearching(true);
-      setMatchedUser(null);
-      setMessages([]);
-      setPartnerDisconnected(false);
-    }
+  const stopSearching = () => {
+    console.log("stopping search");
+    resetStates();
+    socket.emit("stop-searching");
+
+    socket.off("stop-searching");
   };
 
   const handleExit = () => {
     console.log("exitinggg");
 
-    resetStates();
+    stopSearching();
     socket.emit("unpair");
-    socket.emit("stop-searching");
     navigateTo("/");
-
-    socket.off("stop-searching");
   };
 
   useEffect(() => {
@@ -106,7 +96,6 @@ function ChatPage() {
         {...{
           isSearching,
           matchedUser,
-          searchNext,
           handleExit,
           message,
           messages,
@@ -116,13 +105,13 @@ function ChatPage() {
           startChattingAgain,
           userId,
           partnerDisconnected,
+          stopSearching,
         }}
       />
       <Chat
         {...{
           isSearching,
           matchedUser,
-          searchNext,
           handleExit,
           message,
           messages,
@@ -132,6 +121,7 @@ function ChatPage() {
           startChattingAgain,
           userId,
           partnerDisconnected,
+          stopSearching,
         }}
       />
     </>
