@@ -16,11 +16,12 @@ function Chat({
   stopSearching,
 }) {
   const isChatDisabled = matchedUser === null;
-  const chatEndRef = useRef(null);
+  const messageContainerRef = useRef(null);
 
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -55,7 +56,7 @@ function Chat({
 
           {/* Área de mensajes */}
 
-          <div ref={chatEndRef} className="flex-1 p-4 overflow-y-auto">
+          <div ref={messageContainerRef} className="flex-1 p-4 overflow-y-auto">
             {messages.map((message, index) => (
               <div
                 key={index}
