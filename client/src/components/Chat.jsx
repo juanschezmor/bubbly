@@ -14,6 +14,7 @@ function Chat({
   userId,
   partnerDisconnected,
   stopSearching,
+  typingStatus,
 }) {
   const isChatDisabled = matchedUser === null;
   const messageContainerRef = useRef(null);
@@ -75,6 +76,7 @@ function Chat({
                 </div>
               </div>
             ))}
+            {typingStatus && <div className="message text-left">Typing...</div>}
             {!isSearching & (matchedUser == null) & !partnerDisconnected ? (
               <div>
                 <p>
@@ -146,6 +148,7 @@ Chat.propTypes = {
   userId: PropTypes.string.isRequired,
   partnerDisconnected: PropTypes.bool.isRequired,
   stopSearching: PropTypes.func.isRequired,
+  typingStatus: PropTypes.string,
 };
 
 export default Chat;

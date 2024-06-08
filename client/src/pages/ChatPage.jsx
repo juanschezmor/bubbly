@@ -20,6 +20,8 @@ function ChatPage() {
     partnerDisconnected,
     setPartnerDisconnected,
     resetStates,
+    typingStatus,
+    setTypingStatus,
   } = useGlobalContext();
   const navigate = useNavigate();
   const navigateTo = (path) => {
@@ -59,8 +61,24 @@ function ChatPage() {
     };
   }, [setRemovedTags]);
 
+  useEffect(() => {
+    //This is what we receive: emit("typing", True, room=partner)
+    socket.on("typing", (status) => {
+      setTypingStatus(status);
+    });
+    return () => {
+      socket.off("typing");
+    };
+  }, []);
+
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
+
+    if (e.target.value) {
+      socket.emit("start-typing");
+    } else {
+      socket.emit("stop-typing");
+    }
   };
 
   const sendMessage = () => {
@@ -74,6 +92,7 @@ function ChatPage() {
     socket.emit("send-message", messageData);
     setMessages((prevMessages) => [...prevMessages, messageData]);
     setMessage("");
+    socket.emit("stop-typing");
   };
 
   const startChattingAgain = () => {
@@ -106,6 +125,7 @@ function ChatPage() {
           userId,
           partnerDisconnected,
           stopSearching,
+          typingStatus,
         }}
       />
       <Chat
@@ -122,6 +142,7 @@ function ChatPage() {
           userId,
           partnerDisconnected,
           stopSearching,
+          typingStatus,
         }}
       />
     </>

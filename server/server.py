@@ -153,5 +153,23 @@ def handle_send_message(data):
     emit("receive-message", data, room=data["to"])
 
 
+@socketio.on("start-typing")
+def handle_start_typing():
+    user_id = request.sid
+    partner = user_manager.get_partner(user_id)
+    if partner:
+        emit("typing", True, room=partner)
+        print("User started typing:", user_id, "\t sent to partner:", partner)
+
+
+@socketio.on("stop-typing")
+def handle_stop_typing():
+    user_id = request.sid
+    partner = user_manager.get_partner(user_id)
+    if partner:
+        emit("typing", False, room=partner)
+        print("User stopped typing:", user_id, "\t sent to partner:", partner)
+
+
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)

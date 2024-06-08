@@ -16,6 +16,7 @@ const ContextProvider = ({ children }) => {
   const [removedTags, setRemovedTags] = useState(false);
   const [partnerDisconnected, setPartnerDisconnected] = useState(false);
   const [colorScheme, setColorScheme] = useState(colorSchemes[0].colors);
+  const [typingStatus, setTypingStatus] = useState(false);
 
   const changeColorScheme = (scheme) => {
     setColorScheme(scheme);
@@ -58,6 +59,8 @@ const ContextProvider = ({ children }) => {
         resetStates,
         colorScheme,
         changeColorScheme,
+        typingStatus,
+        setTypingStatus,
       }}
     >
       {children}
