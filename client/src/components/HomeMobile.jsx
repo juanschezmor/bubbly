@@ -13,6 +13,7 @@ function HomeMobile({
   handleInputChange,
   handleAddTag,
   handleRemoveTag,
+  tagsDisabled,
   startChatting,
 }) {
   return (
@@ -32,11 +33,16 @@ function HomeMobile({
           <p>{TAGS_STRING}</p>
           <div className="flex items-center">
             <input
+              className="input-tags h-6"
               type="text"
               value={inputValue}
               onChange={handleInputChange}
             />
-            <button className="boton ml-2 w-36" onClick={handleAddTag}>
+            <button
+              className="add-tag-btn ml-2 w-36"
+              onClick={handleAddTag}
+              disabled={tagsDisabled}
+            >
               Add
             </button>
           </div>
@@ -84,5 +90,6 @@ HomeMobile.propTypes = {
   handleAddTag: PropTypes.func,
   handleRemoveTag: PropTypes.func,
   startChatting: PropTypes.func,
+  tagsDisabled: PropTypes.bool,
 };
 export default HomeMobile;

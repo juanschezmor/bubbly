@@ -1,31 +1,26 @@
 import logo from "../assets/logo.png";
 import PropTypes from "prop-types";
-import {
-  WEB_NAME,
-  APP_DESCRIPTION,
-  TAGS_DESCRIPTION,
-  TAGS_STRING,
-} from "../constants";
+import { APP_DESCRIPTION, TAGS_DESCRIPTION, TAGS_STRING } from "../constants";
 function Home({
   tags,
   inputValue,
   handleInputChange,
   handleAddTag,
   handleRemoveTag,
+  tagsDisabled,
   startChatting,
 }) {
   return (
     <>
       <div className=" hidden md:flex screen">
-        <div className="main-container flex flex-row">
-          <div className="w-1/2 h-full flex flex-col justify-center items-center p-3">
-            <div className="w-full max-h-36 flex p-2 items-center">
+        <div className="main-container flex flex-col pb-5">
+          <div className="w-full h-full flex  justify-center items-center">
+            <div className="w-full flex flex-col items-center">
               <img
-                className="rounded-full w-1/3 h-auto"
+                className="rounded-full w-5/6 h-auto"
                 src={logo}
                 alt="Logo"
               />
-              <h2 className="text-5xl">{WEB_NAME}</h2>
             </div>
             <div className="pb-5"></div>
             <div className="pb-5 text-xl">
@@ -34,8 +29,19 @@ function Home({
               <p dangerouslySetInnerHTML={{ __html: TAGS_DESCRIPTION }} />
             </div>
           </div>
-          <div className="w-1/2 h-full flex flex-col items-center justify-center p-10">
-            <div className="tags w-full h-1/4 flex flex-col justify-center items-center">
+          <div className="w-full h-full flex  items-center justify-center p-10">
+            <div className="w-1/2 h-full justify-center text-center ">
+              <div className="instructions">
+                <h3>Instructions</h3>
+                <ul className="text-left">
+                  <li>
+                    1.Add tags that you wish to have in common with your match
+                  </li>
+                  <li>2.Click on &quot;Start Chatting!&quot;</li>
+                </ul>
+              </div>
+            </div>
+            <div className="tags w-1/2 h-1/4 flex flex-col justify-center items-center">
               <p className="">{TAGS_STRING}</p>
               <div className="flex items-center justify-center">
                 <input
@@ -49,7 +55,11 @@ function Home({
                     }
                   }}
                 />
-                <button className="add-tag-btn ml-2" onClick={handleAddTag}>
+                <button
+                  className="add-tag-btn ml-2"
+                  onClick={handleAddTag}
+                  disabled={tagsDisabled}
+                >
                   <p className="add-text">Add</p>
                 </button>
               </div>
@@ -83,18 +93,18 @@ function Home({
                 ))}
               </div>
             </div>
-            <div>
-              <button className="boton" onClick={startChatting}>
-                Start Chatting!
-              </button>
-            </div>
+          </div>
+          <div className="w-full flex justify-center items-center">
+            <button className="boton" onClick={startChatting}>
+              Start Chatting!
+            </button>
           </div>
         </div>
       </div>
     </>
   );
 }
-//Prop validation
+
 Home.propTypes = {
   tags: PropTypes.array,
   inputValue: PropTypes.string,
@@ -102,5 +112,6 @@ Home.propTypes = {
   handleAddTag: PropTypes.func,
   handleRemoveTag: PropTypes.func,
   startChatting: PropTypes.func,
+  tagsDisabled: PropTypes.bool,
 };
 export default Home;

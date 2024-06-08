@@ -1,4 +1,4 @@
-import { colorSchemes } from "../ColorSchemes"; // Asegúrate de que la ruta sea correcta
+import { colorSchemes } from "../ColorSchemes";
 import PropTypes from "prop-types";
 const ColorModal = ({ isOpen, onClose, changeColorScheme }) => {
   if (!isOpen) {

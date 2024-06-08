@@ -11,15 +11,21 @@ function HomePage() {
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
   };
-
+  const [tagsDisabled, setTagsDisabled] = useState(false);
   const handleAddTag = () => {
     let tag = inputValue.trim();
     if (tag !== "") {
       if (tag.length > 10) {
         alert("You can't add a tag with more than 10 characters!");
+        setTagsDisabled(true);
       } else {
-        setTags((prevTags) => [...prevTags, inputValue.trim()]);
-        setInputValue("");
+        if (tags.length >= 10) {
+          setTagsDisabled(true);
+          alert("You can't add more than 10 tags!");
+        } else {
+          setTags((prevTags) => [...prevTags, inputValue.trim()]);
+          setInputValue("");
+        }
       }
     }
   };
@@ -27,6 +33,9 @@ function HomePage() {
     setTags((prevTags) =>
       prevTags.filter((_, index) => index !== indexToRemove)
     );
+    if (tags.length <= 10) {
+      setTagsDisabled(false);
+    }
   };
 
   const navigate = useNavigate();
@@ -43,12 +52,6 @@ function HomePage() {
     console.log("isSearching:", isSearching);
   }, [isSearching]);
 
-  useEffect(() => {
-    console.log(tags);
-    if (tags.length > 9) {
-      alert("You can't add more than 10 tags!");
-    }
-  }, [tags]);
   return (
     <>
       <Home
@@ -58,6 +61,7 @@ function HomePage() {
           handleInputChange,
           handleAddTag,
           handleRemoveTag,
+          tagsDisabled,
           startChatting,
         }}
       />
@@ -68,6 +72,7 @@ function HomePage() {
           handleInputChange,
           handleAddTag,
           handleRemoveTag,
+          tagsDisabled,
           startChatting,
         }}
       />

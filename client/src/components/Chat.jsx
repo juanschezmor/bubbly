@@ -46,7 +46,6 @@ function Chat({
             {(matchedUser != null) & !isSearching ? (
               <div className="flex flex-col items-center">
                 <p>Match found!</p>
-                <p>{matchedUser}</p>
               </div>
             ) : null}
             <button className="boton" onClick={handleExit}>
@@ -54,7 +53,7 @@ function Chat({
             </button>
           </div>
 
-          {/* Área de mensajes */}
+          {/* Messages Area */}
 
           <div ref={messageContainerRef} className="flex-1 p-4 overflow-y-auto">
             {messages.map((message, index) => (
@@ -104,7 +103,7 @@ function Chat({
               </div>
             )}
           </div>
-          {/* Entrada de mensaje */}
+          {/* Message input */}
 
           <div className="w-full flex items-center mt-5 p-4 border-t border-gray-200">
             <input
@@ -146,7 +145,6 @@ Chat.propTypes = {
   startChattingAgain: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,
   partnerDisconnected: PropTypes.bool.isRequired,
-  searchNext: PropTypes.func.isRequired,
   stopSearching: PropTypes.func.isRequired,
 };
 

@@ -11,6 +11,7 @@ function ChatMobile({
   sendMessage,
   startChattingAgain,
   userId,
+  partnerDisconnected,
   stopSearching,
 }) {
   const isChatDisabled = matchedUser === null;
@@ -45,7 +46,6 @@ function ChatMobile({
             {(matchedUser != null) & !isSearching ? (
               <div className="flex flex-col items-center">
                 <p>Match found!</p>
-                <p>{matchedUser}</p>
               </div>
             ) : null}
             <button className="boton" onClick={handleExit}>
@@ -53,28 +53,12 @@ function ChatMobile({
             </button>
           </div>
 
-          {/* Área de mensajes */}
+          {/* Messages area */}
 
           <div
             ref={messageContainerRef}
             className="flex-1 p-4 overflow-y-auto "
           >
-            {!isSearching & (matchedUser == null) ? (
-              <div>
-                <p>
-                  We couldnt find a match, press here if you want to keep trying
-                </p>
-                <button className="boton" onClick={startChattingAgain}>
-                  Start chatting
-                </button>
-              </div>
-            ) : null}
-            {removedTags && (
-              <div className="removed-tags-message">
-                We couldnt find any user that matches your tags, we removed the
-                tags to find a user
-              </div>
-            )}
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -94,8 +78,35 @@ function ChatMobile({
                 </div>
               </div>
             ))}
+            {!isSearching & (matchedUser == null) & !partnerDisconnected ? (
+              <div>
+                <p>
+                  We couldnt find a match, press here if you want to keep trying
+                </p>
+                <button className="boton" onClick={startChattingAgain}>
+                  Start chatting
+                </button>
+              </div>
+            ) : null}
+            {removedTags && (
+              <div>
+                We couldnt find any user that matches your tags, we removed the
+                tags to find a user
+              </div>
+            )}
+            {partnerDisconnected && (
+              <div>
+                <p>
+                  Your partner has disconnected, press here if you want to keep
+                  trying
+                </p>
+                <button className="boton" onClick={startChattingAgain}>
+                  Start chatting
+                </button>
+              </div>
+            )}
           </div>
-          {/* Entrada de mensaje */}
+          {/* Message Input */}
           <div className="w-full flex items-center mt-5 p-4 border-t border-gray-200 ">
             <input
               type="text"
@@ -129,7 +140,7 @@ ChatMobile.propTypes = {
   sendMessage: PropTypes.func.isRequired,
   startChattingAgain: PropTypes.func.isRequired,
   userId: PropTypes.string.isRequired,
-  searchNext: PropTypes.func.isRequired,
+  partnerDisconnected: PropTypes.bool.isRequired,
   stopSearching: PropTypes.func.isRequired,
 };
 

@@ -73,7 +73,7 @@ def search(user):
         print("Time elapsed:", elapsed_time)
 
         if user not in user_manager.users_searching:
-            print("Búsqueda detenida manualmente")
+            print("Search stopped...")
             return None
 
         if len(user_manager.online_users) > 1:
@@ -94,12 +94,11 @@ def search(user):
                 socketio.emit("removed-tags", room=user.sid)
                 remove_tags_emitted = True
         else:
-            print("No match found...esperando a otro usuario")
+            print("No match found...")
 
         if elapsed_time > 10:
             break
 
-        # Esperar 1 segundo antes de la próxima iteración
         sleep(1)
 
     if user in user_manager.users_searching:
@@ -146,7 +145,7 @@ def handle_unpair():
 
 @socketio.on("send-message")
 def handle_send_message(data):
-    print("Mensaje enviado:", data)
+    print("Message sent:", data)
     emit("receive-message", data, room=data["to"])
 
 
