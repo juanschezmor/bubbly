@@ -36,10 +36,14 @@ def handle_disconnect():
     user_id = request.sid
     user = user_manager.get_user_by_sid(user_id)
     if user:
-        partner_sid = user_manager.get_partner(user)
-        if partner_sid:
-            print("Notifying partner about disconnection:", partner_sid)
-            emit("partner-disconnected", room=partner_sid)
+        if user in user_manager.users_searching:
+            user_manager.remove_searching_user(user)
+        if user.sid in user_manager.active_pairs:
+            partner = user_manager.active_pairs[user.sid]
+            user_manager.remove_active_pair(user.sid, partner)
+            emit("unpaired", user.sid)
+            print("Sending emit partner-disconnected to...", partner)
+            emit("partner-disconnected", room=partner)
         user_manager.remove_user(user)
         print("User disconnected:", user_id)
         print("Online users:", user_manager.get_all_user_sids())
