@@ -13,6 +13,7 @@ function ChatMobile({
   userId,
   partnerDisconnected,
   stopSearching,
+  typingStatus,
 }) {
   const isChatDisabled = matchedUser === null;
   const messageContainerRef = useRef(null);
@@ -105,6 +106,7 @@ function ChatMobile({
                 </button>
               </div>
             )}
+            {typingStatus && <div className="message text-left">Typing...</div>}
           </div>
           {/* Message Input */}
           <div className="w-full flex items-center mt-5 p-4 border-t border-gray-200 ">
@@ -142,6 +144,7 @@ ChatMobile.propTypes = {
   userId: PropTypes.string.isRequired,
   partnerDisconnected: PropTypes.bool.isRequired,
   stopSearching: PropTypes.func.isRequired,
+  typingStatus: PropTypes.bool,
 };
 
 export default ChatMobile;

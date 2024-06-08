@@ -148,7 +148,7 @@ Chat.propTypes = {
   userId: PropTypes.string.isRequired,
   partnerDisconnected: PropTypes.bool.isRequired,
   stopSearching: PropTypes.func.isRequired,
-  typingStatus: PropTypes.string,
+  typingStatus: PropTypes.bool,
 };
 
 export default Chat;
