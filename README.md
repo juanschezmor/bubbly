@@ -4,8 +4,8 @@
 
 1. **Clonar el Repositorio:**
    ```bash
-   git clone <URL del repositorio>
-   cd <nombre del repositorio>
+   git clone https://github.com/juanschezmor/bubbly.git
+   cd bubbly
    ```
 2. **Configurar Variables de Entorno del Cliente:**
 Navegue al directorio del cliente y edite (o cree) el archivo .env para configurar la URL del backend:
