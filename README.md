@@ -1,3 +1,9 @@
+Este proyecto consiste en una aplicación web de chat anónimo diseñada para proporcionar una experiencia de conexión rápida y sin complicaciones. Los usuarios pueden comenzar a chatear en cuestión de segundos sin necesidad de autenticación previa. La aplicación ofrece una plataforma accesible y rápida donde los usuarios pueden conectarse y chatear con otras personas de forma inmediata.
+
+---
+
+🚀 **¡Prueba la aplicación en línea!** [¡Haz clic aquí!](http://134.209.84.22:3000/)
+
 ### Proceso de Instalación
 
 **Pasos para la Instalación:**
